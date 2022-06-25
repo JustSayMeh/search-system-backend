@@ -1,4 +1,4 @@
-package com.example.searchsystembackend;
+package ru.scytech.documentsearchsystembackend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
