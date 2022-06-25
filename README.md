@@ -1,6 +1,6 @@
 Для развертывания приложения необходимо поднять ElasticSearch.  
 Для конфигурования ElasticSearch нужно прогнать по порядку запросы из src/test/http/elasticconfig.http  
-Если порядок действий соблюден, то backend будет доступен по 8080 порту, а ElasticSearch по 9200.
+Если порядок действий соблюден, то backend будет доступен по 8080 порту, а ElasticSearch по 9200.  
 **Запросы**
 POST *files/upload/{domain}/{filename}* - загрузить файл на сервер
 
