@@ -2,12 +2,17 @@ package ru.scytech.documentsearchsystembackend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
+import ru.scytech.documentsearchsystembackend.services.ElasticRestClient;
 
-@SpringBootTest
+import java.io.IOException;
+
+
 class SearchSystemBackendApplicationTests {
 
     @Test
-    void contextLoads() {
+    void contextLoads() throws IOException {
+
     }
 
 }

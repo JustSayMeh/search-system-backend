@@ -2,6 +2,6 @@ GET http://localhost:8080/search
 Content-Type: application/json
 
 {
-  "query": "Как только платеж",
+  "query": "бюджет",
   "queryFlags": []
 }

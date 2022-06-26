@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PDFSeparator implements FileSeparator{
+public class PDFSeparator implements FileSeparator {
     private PDDocument pdDocument;
     private PDDocumentInformation pdDocumentInformation;
 
@@ -40,5 +40,10 @@ public class PDFSeparator implements FileSeparator{
 
     public List<String> getKeywords() {
         return Arrays.stream(pdDocumentInformation.getKeywords().split(" ")).collect(Collectors.toList());
+    }
+
+    @Override
+    public void close() throws IOException {
+        pdDocument.close();
     }
 }

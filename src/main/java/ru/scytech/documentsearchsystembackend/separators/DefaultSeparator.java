@@ -25,4 +25,9 @@ public class DefaultSeparator implements FileSeparator {
     public List<String> getKeywords() {
         return Collections.emptyList();
     }
+
+    @Override
+    public void close() throws IOException {
+
+    }
 }

@@ -1,0 +1,38 @@
+{
+  "settings": {
+    "index": {
+      "analysis": {
+        "analyzer": {
+          "my_search_analyzer": {
+            "type": "custom",
+            "tokenizer": "standard",
+            "filter": [
+              "lowercase",
+              "search_synonym",
+              "russian_morphology",
+              "english_morphology"
+            ]
+          }
+        },
+        "filter": {
+          "search_synonym": {
+            "ignore_case": "true",
+            "type": "synonym",
+            "synonyms": [
+              "пончо,накидка"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "attachment.content": {
+        "type": "text",
+        "term_vector": "with_positions_offsets",
+        "analyzer": "my_search_analyzer"
+      }
+    }
+  }
+}
