@@ -2,10 +2,12 @@ package ru.scytech.documentsearchsystembackend.model;
 
 import lombok.Data;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 public class QueryDTO {
     private String query;
-    private List<QueryFlags> queryFlags;
+    private QueryFlag queryFlag;
+    private Set<String> domains;
+    private Set<String> files;
 }

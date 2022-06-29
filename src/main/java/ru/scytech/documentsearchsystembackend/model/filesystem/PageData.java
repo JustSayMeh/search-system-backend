@@ -1,4 +1,4 @@
-package ru.scytech.documentsearchsystembackend.model;
+package ru.scytech.documentsearchsystembackend.model.filesystem;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,8 +8,10 @@ import java.io.InputStream;
 
 @Data
 @AllArgsConstructor
-public class FileData {
-    private String fileName;
+public class PageData {
+    private String docName;
+    private String domain;
+    private int page;
     private byte[] content;
     private MediaType type;
 }

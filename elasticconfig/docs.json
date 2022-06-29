@@ -8,27 +8,36 @@
             "tokenizer": "standard",
             "filter": [
               "lowercase",
-              "search_synonym",
               "russian_morphology",
-              "english_morphology"
+              "english_morphology",
+              "shingle"
             ]
           }
         },
         "filter": {
-          "search_synonym": {
-            "ignore_case": "true",
-            "type": "synonym",
-            "synonyms": [
-              "пончо,накидка"
-            ]
-          }
         }
       }
     }
   },
   "mappings": {
     "properties": {
-      "attachment.content": {
+      "hash": {
+        "type": "keyword"
+      },
+      "domain": {
+        "type": "keyword",
+        "ignore_above": 256
+      },
+      "docName": {
+        "type": "keyword",
+        "ignore_above": 256
+      },
+      "title": {
+        "type": "text",
+        "term_vector": "with_positions_offsets",
+        "analyzer": "my_search_analyzer"
+      },
+      "keywords": {
         "type": "text",
         "term_vector": "with_positions_offsets",
         "analyzer": "my_search_analyzer"

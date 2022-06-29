@@ -1,5 +1,7 @@
 package ru.scytech.documentsearchsystembackend.security;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.Authentication;
@@ -19,8 +21,14 @@ import java.util.stream.Collectors;
 @Profile("secure")
 public class CsrfTokenController {
     @GetMapping("/csrfToken")
-    public CsrfToken get(HttpServletRequest request, SecurityProperties.User user) {
-        return (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+    public CsrfTokenWithName get(HttpServletRequest request, SecurityProperties.User user) {
+        var csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return new CsrfTokenWithName(csrfToken.getParameterName(),
+                csrfToken.getToken(),
+                csrfToken.getHeaderName(),
+                authentication.getName(),
+                authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).anyMatch(it -> it.equals("ADMIN")));
 
     }
 
@@ -29,4 +37,14 @@ public class CsrfTokenController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
     }
+}
+
+@Data
+@AllArgsConstructor
+class CsrfTokenWithName {
+    private String parameterName;
+    private String token;
+    private String headerName;
+    private String name;
+    private boolean isAdmin;
 }

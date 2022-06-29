@@ -2,15 +2,15 @@ package ru.scytech.documentsearchsystembackend.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import ru.scytech.documentsearchsystembackend.model.filesystem.PageData;
 
 import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class SearchResult {
+public class PagedFile {
     private String fileName;
     private String domain;
-    private int page;
-    private List<Highlight> highlightList;
-    private float score;
+    private String title;
+    private List<PageData> pages;
 }

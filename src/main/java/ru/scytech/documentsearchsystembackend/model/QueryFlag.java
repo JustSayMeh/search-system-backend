@@ -1,6 +1,6 @@
 package ru.scytech.documentsearchsystembackend.model;
 
-public enum QueryFlags {
+public enum QueryFlag {
     PHRASE,
     WORD,
     TITLE
