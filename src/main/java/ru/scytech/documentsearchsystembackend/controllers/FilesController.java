@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.scytech.documentsearchsystembackend.services.DefaultDocumentAccessService;
-import ru.scytech.documentsearchsystembackend.services.DefaultSearchService;
+import ru.scytech.documentsearchsystembackend.services.SearchSystemFacade;
 
 import javax.naming.OperationNotSupportedException;
 import java.io.ByteArrayInputStream;
@@ -18,21 +18,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/files")
+@RequestMapping("/docs")
 public class FilesController {
-    private DefaultSearchService defaultSearchService;
+    private SearchSystemFacade searchSystemFacade;
     private DefaultDocumentAccessService defaultFileSystemService;
 
-    public FilesController(DefaultSearchService defaultSearchService, DefaultDocumentAccessService defaultFileSystemService) {
-        this.defaultSearchService = defaultSearchService;
+    public FilesController(SearchSystemFacade searchSystemFacade, DefaultDocumentAccessService defaultFileSystemService) {
+        this.searchSystemFacade = searchSystemFacade;
         this.defaultFileSystemService = defaultFileSystemService;
     }
 
-    @GetMapping("/download/{domain}/{filename}")
-    public ResponseEntity<Resource> downloadDoc(@PathVariable String domain,
-                                                @PathVariable String filename) throws IOException {
+    @GetMapping("/{domain}/{filename}")
+    public ResponseEntity<Resource> checkDomainPermissionsBeforeDownloadDoc(
+            @PathVariable String domain,
+            @PathVariable String filename) throws IOException {
 
-        var fileModel = defaultSearchService.loadDoc(domain, filename);
+        var fileModel = searchSystemFacade.loadDoc(domain, filename);
         byte[] bytes = fileModel.getData();
         InputStreamResource inputStreamResource = new InputStreamResource(
                 new ByteArrayInputStream(bytes));
@@ -43,14 +44,15 @@ public class FilesController {
                 .body(inputStreamResource);
     }
 
-    @PostMapping("/upload/{domain}/{filename}")
-    public ResponseEntity uploadDoc(@PathVariable String domain,
-                                    @PathVariable String filename,
-                                    @RequestParam("file") MultipartFile file,
-                                    @RequestParam("tags") List<String> tags) throws IOException {
+    @PostMapping("/{domain}/{filename}")
+    public ResponseEntity checkAdminPermissionsBeforeUploadDoc(
+            @PathVariable String domain,
+            @PathVariable String filename,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("tags") List<String> tags) throws IOException {
         InputStream fileInputStream = file.getInputStream();
         try {
-            defaultSearchService.indexDoc(filename, domain, tags, fileInputStream);
+            searchSystemFacade.indexDoc(filename, domain, tags, fileInputStream);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
@@ -60,14 +62,15 @@ public class FilesController {
                 .build();
     }
 
-    @PostMapping("/update/{domain}/{filename}")
-    public ResponseEntity updateDoc(@PathVariable String domain,
-                                    @PathVariable String filename,
-                                    @RequestParam("file") MultipartFile file,
-                                    @RequestParam("tags") List<String> tags) throws IOException {
+    @PutMapping("{domain}/{filename}")
+    public ResponseEntity checkAdminPermissionsBeforeUpdateDoc(
+            @PathVariable String domain,
+            @PathVariable String filename,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("tags") List<String> tags) throws IOException {
         InputStream fileInputStream = file.getInputStream();
         try {
-            defaultSearchService.updateDoc(filename, domain, tags, fileInputStream);
+            searchSystemFacade.updateDoc(domain, filename, tags, fileInputStream);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
@@ -77,15 +80,31 @@ public class FilesController {
                 .build();
     }
 
-    @GetMapping(value = "/download/title/{domain}/{filename}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @DeleteMapping("/{domain}/{filename}")
+    public ResponseEntity checkAdminPermissionsBeforeDeleteDoc(
+            @PathVariable String domain,
+            @PathVariable String filename) throws IOException {
+        try {
+            searchSystemFacade.deleteDoc(domain, filename);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
+    }
+
+    @GetMapping(value = "/title/image/{domain}/{filename}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public @ResponseBody
-    byte[] getTitleImage(@PathVariable String domain,
-                         @PathVariable String filename) throws IOException, OperationNotSupportedException {
-        return defaultSearchService.getTitleImage(domain, filename);
+    byte[] checkDomainPermissionsBeforeGetTitleImage(
+            @PathVariable String domain,
+            @PathVariable String filename) throws IOException, OperationNotSupportedException {
+        return searchSystemFacade.getTitleImage(domain, filename);
     }
 
     @GetMapping("/domains")
-    public List<String> getDomains() throws IOException {
+    public List<String> checkDomainPermissionsAfterGetDomains() throws IOException {
         return defaultFileSystemService.loadDocsRepository(false).keySet().stream().collect(Collectors.toList());
     }
 }
