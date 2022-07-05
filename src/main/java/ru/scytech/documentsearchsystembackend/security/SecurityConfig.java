@@ -36,7 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.httpBasic().disable().csrf()
                 .ignoringAntMatchers("/login")
                 .ignoringAntMatchers("/logout")
-                .ignoringAntMatchers("/files/*")
+                .ignoringAntMatchers("/docs/**")
                 .and()
                 .authorizeRequests()
                 .anyRequest().authenticated()

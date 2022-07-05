@@ -25,17 +25,17 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
-public class DefaultSearchService {
+public class SearchSystemFacade {
     private DocumentAccessService documentAccessService;
     private FileSeparateService fileSeparateService;
     private DocIndexDao docIndexDao;
     private PageIndexDao pageIndexDao;
     private Pattern quotePattern = Pattern.compile("^\"(.*)\"$");
 
-    public DefaultSearchService(DocumentAccessService documentAccessService,
-                                FileSeparateService fileSeparateService,
-                                DocIndexDao docIndexDao,
-                                PageIndexDao pageIndexDao) throws IOException {
+    public SearchSystemFacade(DocumentAccessService documentAccessService,
+                              FileSeparateService fileSeparateService,
+                              DocIndexDao docIndexDao,
+                              PageIndexDao pageIndexDao) throws IOException {
         this.documentAccessService = documentAccessService;
         this.fileSeparateService = fileSeparateService;
         this.docIndexDao = docIndexDao;
@@ -110,7 +110,7 @@ public class DefaultSearchService {
     }
 
 
-    public void updateDoc(String fileName, String domain, List<String> tags, InputStream inputStream) throws IOException {
+    public void updateDoc(String domain, String fileName, List<String> tags, InputStream inputStream) throws IOException {
         deleteDoc(domain, fileName);
         indexDoc(fileName, domain, tags, inputStream);
     }
@@ -151,9 +151,6 @@ public class DefaultSearchService {
 
         if (!query.getDomains().isEmpty()) {
             result = result.stream().filter(it -> query.getDomains().contains(it.getDomain())).collect(Collectors.toList());
-        }
-        if (!query.getFiles().isEmpty()) {
-            result = result.stream().filter(it -> query.getFiles().contains(it.getDocName())).collect(Collectors.toList());
         }
         return result;
     }
