@@ -46,7 +46,7 @@ public class DomainAccessManager {
         if (!domainsAuthorities.containsKey(domain)) {
             throw new IllegalArgumentException("not found domain " + domain);
         }
-        return domainsAuthorities.get(domain);
+        return new HashSet<>(domainsAuthorities.get(domain));
     }
 
     public void addDomainAuthorities(String domain, List<String> authorities) {
@@ -54,5 +54,9 @@ public class DomainAccessManager {
             throw new IllegalArgumentException("not found domain " + domain);
         }
         domainsAuthorities.get(domain).addAll(authorities);
+    }
+
+    public boolean isAdmin(Collection<String> authorities) {
+        return authorities.contains("ADMIN");
     }
 }
