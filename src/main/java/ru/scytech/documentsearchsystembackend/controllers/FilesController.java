@@ -15,6 +15,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -107,4 +109,10 @@ public class FilesController {
     public List<String> checkDomainPermissionsAfterGetDomains() throws IOException {
         return defaultFileSystemService.loadDocsRepository(false).keySet().stream().collect(Collectors.toList());
     }
+
+    @GetMapping("/domains/tree")
+    public Map<String, Set<String>> checkDomainPermissionsAfterGetDomainsTree() throws IOException {
+        return defaultFileSystemService.loadDocsRepository(false);
+    }
+
 }

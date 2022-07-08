@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 import ru.scytech.documentsearchsystembackend.security.DomainAccessManager;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Aspect
@@ -58,8 +60,8 @@ public class FilesControllerAspect {
         return ResponseEntity.status(403).build();
     }
 
-    @Around("execution(* ru.scytech.documentsearchsystembackend.controllers.FilesController.checkDomainPermissionsAfter*(..))")
-    public Object checkDomainPermissionsAfter(ProceedingJoinPoint joinPoint) throws Throwable {
+    @Around("execution(java.util.List<String> ru.scytech.documentsearchsystembackend.controllers.FilesController.checkDomainPermissionsAfter*(..))")
+    public Object checkDomainPermissionsAfterReturnList(ProceedingJoinPoint joinPoint) throws Throwable {
         var result = (List<String>) joinPoint.proceed();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var userAuths = authentication
@@ -76,5 +78,25 @@ public class FilesControllerAspect {
                     domainAuthorities.retainAll(userAuths);
                     return !domainAuthorities.isEmpty();
                 }).collect(Collectors.toList());
+    }
+
+    @Around("execution(java.util.Map<String, java.util.Set<String>> ru.scytech.documentsearchsystembackend.controllers.FilesController.checkDomainPermissionsAfter*(..))")
+    public Object checkDomainPermissionsAfterReturnMap(ProceedingJoinPoint joinPoint) throws Throwable {
+        var result = (Map<String, Set<String>>) joinPoint.proceed();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var userAuths = authentication
+                .getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+        return result.entrySet()
+                .stream()
+                .filter(it -> {
+                    var domainAuthorities = domainAccessManager.getDomainAuthorities(it.getKey());
+                    if (domainAuthorities.isEmpty())
+                        return true;
+                    domainAuthorities.retainAll(userAuths);
+                    return !domainAuthorities.isEmpty();
+                }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }
