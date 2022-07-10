@@ -32,8 +32,9 @@
       "page": {
         "type": "long"
       },
-      "filename": {
-        "type": "keyword"
+      "docName": {
+        "type": "keyword",
+        "ignore_above": 256
       }
     }
   }
