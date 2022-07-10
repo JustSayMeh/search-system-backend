@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import ru.scytech.documentsearchsystembackend.dao.DocIndexDao;
 import ru.scytech.documentsearchsystembackend.dao.PageIndexDao;
 import ru.scytech.documentsearchsystembackend.services.ElasticRestClient;
@@ -92,5 +93,10 @@ public class SearchSystemBackendApplication {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    @Bean
+    public MethodValidationPostProcessor methodValidationPostProcessor() {
+        return new MethodValidationPostProcessor();
     }
 }
