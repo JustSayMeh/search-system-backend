@@ -1,44 +1,34 @@
 package ru.scytech.documentsearchsystembackend.security;
 
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ru.scytech.documentsearchsystembackend.model.SystemUser;
 import ru.scytech.documentsearchsystembackend.services.SecurityRepository;
+
+import java.util.Optional;
 
 @Service
 @Profile("secure")
-public class FileAuthenticationProvider implements AuthenticationProvider {
+public class FileAuthenticationProvider implements UserDetailsService {
     private SecurityRepository securityRepository;
-    private PasswordEncoder passwordEncoder;
 
-    public FileAuthenticationProvider(SecurityRepository securityRepository, PasswordEncoder passwordEncoder) {
+    public FileAuthenticationProvider(SecurityRepository securityRepository) {
         this.securityRepository = securityRepository;
-        this.passwordEncoder = passwordEncoder;
+
     }
 
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        String userName = authentication.getName();
-        String password = authentication.getCredentials().toString();
-        var userOptional = securityRepository.getUserByName(userName);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<SystemUser> userOptional = securityRepository.getUserByName(username);
         if (userOptional.isEmpty()) {
             throw new UsernameNotFoundException("User not found!");
         }
-        UsernamePasswordAuthenticationToken user = userOptional.get();
-        if (passwordEncoder.matches(password, user.getCredentials().toString())) {
-            return new UsernamePasswordAuthenticationToken(user.getName(), user.getCredentials(), user.getAuthorities());
-        }
-        throw new BadCredentialsException("Invalid credentials");
-    }
-
-    @Override
-    public boolean supports(Class<?> authentication) {
-        return authentication.equals(UsernamePasswordAuthenticationToken.class);
+        SystemUser user = userOptional.get();
+        String[] roles = user.getAuthorities().stream().toArray(String[]::new);
+        return User.withUsername(username).password(user.getPassword()).authorities(roles).build();
     }
 }
