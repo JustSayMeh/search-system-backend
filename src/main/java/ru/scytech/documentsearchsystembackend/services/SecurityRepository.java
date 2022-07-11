@@ -3,10 +3,10 @@ package ru.scytech.documentsearchsystembackend.services;
 import lombok.EqualsAndHashCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ru.scytech.documentsearchsystembackend.model.SystemUser;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,7 +25,6 @@ class StringGrantedAuthority implements GrantedAuthority {
         this.authority = authority;
     }
 
-
     @Override
     public String getAuthority() {
         return authority;
@@ -35,7 +34,7 @@ class StringGrantedAuthority implements GrantedAuthority {
 @Service
 @Profile("secure")
 public class SecurityRepository {
-    private Map<String, UsernamePasswordAuthenticationToken> users;
+    private Map<String, SystemUser> users;
     private Set<StringGrantedAuthority> roles;
     private PasswordEncoder passwordEncoder;
 
@@ -61,11 +60,14 @@ public class SecurityRepository {
                 userRoles.add(StringGrantedAuthority.of(columns[i]));
             }
             roles.addAll(userRoles);
-            users.put(userName, new UsernamePasswordAuthenticationToken(userName, passwordEncoder.encode(password), userRoles));
+            users.put(userName, new SystemUser(
+                    userName,
+                    passwordEncoder.encode(password),
+                    userRoles.stream().map(it -> it.getAuthority()).collect(Collectors.toList())));
         }
     }
 
-    public Optional<UsernamePasswordAuthenticationToken> getUserByName(String userName) {
+    public Optional<SystemUser> getUserByName(String userName) {
         return Optional.ofNullable(users.get(userName));
     }
 
@@ -74,8 +76,7 @@ public class SecurityRepository {
     }
 
     public void addUser(String userName, String password, List<String> roles) {
-        var converted = roles.stream().map(it -> StringGrantedAuthority.of(it)).collect(Collectors.toList());
-        users.put(userName, new UsernamePasswordAuthenticationToken(userName, passwordEncoder.encode(password), converted));
+        users.put(userName, new SystemUser(userName, passwordEncoder.encode(password), roles));
     }
 
 
