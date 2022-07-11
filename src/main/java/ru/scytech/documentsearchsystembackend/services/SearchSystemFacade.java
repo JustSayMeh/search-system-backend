@@ -179,7 +179,7 @@ public class SearchSystemFacade {
     public byte[] getTitleImage(String domain, String docName) throws IOException, OperationNotSupportedException {
         if (docIndexDao.getDoc(domain, docName).isEmpty()) {
             throw new IllegalArgumentException(
-                    String.format("File \"%s\" in domain \"%s\" already exists", docName, domain)
+                    String.format("File \"%s\" in domain \"%s\" not found", docName, domain)
             );
         }
         byte[] bytes = documentAccessService.getFile(docName, domain);
