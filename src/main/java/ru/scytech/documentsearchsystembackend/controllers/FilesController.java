@@ -36,8 +36,8 @@ public class FilesController {
 
     @GetMapping("/{domain}/{filename}")
     public ResponseEntity<Resource> checkDomainPermissionsBeforeDownloadDoc(
-            @PathVariable @Pattern(regexp = "[A-Za-z0-9_%() ]+[\\.]?[A-Za-z0-9_%() ]*") String domain,
-            @PathVariable @Pattern(regexp = "[A-Za-z0-9_%() ]+[\\.]?[A-Za-z0-9_%() ]*") String filename) throws IOException {
+            @PathVariable @Pattern(regexp = "[^./.]+[\\.]?[^./.]*") String domain,
+            @PathVariable @Pattern(regexp = "[^./.]+[\\.]?[^./.]*") String filename) throws IOException {
 
         var fileModel = searchSystemFacade.loadDoc(domain, filename);
         byte[] bytes = fileModel.getData();
@@ -52,8 +52,8 @@ public class FilesController {
 
     @PostMapping("/{domain}/{filename}")
     public ResponseEntity checkAdminPermissionsBeforeUploadDoc(
-            @PathVariable @Pattern(regexp = "[A-Za-z0-9_%() ]+[\\.]?[A-Za-z0-9_%() ]*") String domain,
-            @PathVariable @Pattern(regexp = "[A-Za-z0-9_%() ]+[\\.]?[A-Za-z0-9_%() ]*") String filename,
+            @PathVariable @Pattern(regexp = "[^./.]+[\\.]?[^./.]*") String domain,
+            @PathVariable @Pattern(regexp = "[^./.]+[\\.]?[^./.]*") String filename,
             @RequestParam("file") MultipartFile file,
             @RequestParam("tags") List<String> tags) throws IOException {
         InputStream fileInputStream = file.getInputStream();
@@ -70,8 +70,8 @@ public class FilesController {
 
     @PutMapping("{domain}/{filename}")
     public ResponseEntity checkAdminPermissionsBeforeUpdateDoc(
-            @PathVariable @Pattern(regexp = "[A-Za-z0-9_%() ]+[\\.]?[A-Za-z0-9_%() ]*") String domain,
-            @PathVariable @Pattern(regexp = "[A-Za-z0-9_%() ]+[\\.]?[A-Za-z0-9_%() ]*") String filename,
+            @PathVariable @Pattern(regexp = "[^./.]+[\\.]?[^./.]*") String domain,
+            @PathVariable @Pattern(regexp = "[^./.]+[\\.]?[^./.]*") String filename,
             @RequestParam("file") MultipartFile file,
             @RequestParam("tags") List<String> tags) throws IOException {
         InputStream fileInputStream = file.getInputStream();
@@ -88,8 +88,8 @@ public class FilesController {
 
     @DeleteMapping("/{domain}/{filename}")
     public ResponseEntity checkAdminPermissionsBeforeDeleteDoc(
-            @PathVariable @Pattern(regexp = "[A-Za-z0-9_%() ]+[\\.]?[A-Za-z0-9_%() ]*") String domain,
-            @PathVariable @Pattern(regexp = "[A-Za-z0-9_%() ]+[\\.]?[A-Za-z0-9_%() ]*") String filename) throws IOException {
+            @PathVariable @Pattern(regexp = "[^./.]+[\\.]?[^./.]*") String domain,
+            @PathVariable @Pattern(regexp = "[^./.]+[\\.]?[^./.]*") String filename) throws IOException {
         try {
             searchSystemFacade.deleteDoc(domain, filename);
         } catch (IllegalArgumentException e) {
@@ -101,13 +101,18 @@ public class FilesController {
                 .build();
     }
 
-    @GetMapping(value = "/title/image/{domain}/{filename}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @GetMapping(value = "/title/image/{domain}/{filename}", produces = MediaType.IMAGE_JPEG_VALUE)
     public @ResponseBody
-    byte[] checkDomainPermissionsBeforeGetTitleImage(
-            @PathVariable @Pattern(regexp = "[A-Za-z0-9_%() ]+[\\.]?[A-Za-z0-9_%() ]*") String domain,
-            @PathVariable @Pattern(regexp = "[A-Za-z0-9_%() ]+[\\.]?[A-Za-z0-9_%() ]*") String filename)
+    ResponseEntity<byte[]> checkDomainPermissionsBeforeGetTitleImage(
+            @PathVariable @Pattern(regexp = "[^./.]+[\\.]?[^./.]*") String domain,
+            @PathVariable @Pattern(regexp = "[^./.]+[\\.]?[^./.]*") String filename)
             throws IOException, OperationNotSupportedException {
-        return searchSystemFacade.getTitleImage(domain, filename);
+        try {
+            return ResponseEntity.ok(searchSystemFacade.getTitleImage(domain, filename));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+
     }
 
     @GetMapping("/domains")
